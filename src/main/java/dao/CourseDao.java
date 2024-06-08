@@ -2,8 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.student_management_system;
+package dao;
 
+import model.CourseModel;
+import model.StudentModel;
+import view.StudentInfo;
 import db.Myconnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Thulani
  */
-public class Course {
+public class CourseDao {
 
     Connection Con = Myconnection.getConnection();
     PreparedStatement ps;
@@ -35,7 +38,7 @@ public class Course {
                 Student_ID = rs.getInt(1);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Course.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return Student_ID + 1;
     }
@@ -53,56 +56,79 @@ public class Course {
                 JOptionPane.showMessageDialog(null, "student is doesn't exit");
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Course.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
 
-public int countSemester(int id) {
-    int total = 0;
-    String query = "SELECT COUNT(*) AS total FROM course WHERE Student_ID = ?";
-    try (PreparedStatement ps = Con.prepareStatement(query)) {
-        ps.setInt(1, id);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                total = rs.getInt("total");
+    public int countSemester(int id) {
+        int total = 0;
+        String query = "SELECT COUNT(*) AS total FROM course WHERE Student_ID = ?";
+        try (PreparedStatement ps = Con.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt("total");
+                }
             }
+            if (total == 8) {
+                JOptionPane.showMessageDialog(null, "This student has completed all the courses.");
+                return -1;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (total == 8) {
-            JOptionPane.showMessageDialog(null, "This student has completed all the courses.");
-            return -1;
-        }
-    } catch (SQLException ex) {
-        Logger.getLogger(Course.class.getName()).log(Level.SEVERE, null, ex);
+        return total;
     }
-    return total;
-}
-
-    public void insert(int id, int sid, int semesterNo, String subject1, String subject2, String subject3, String subject4) {
+//
+//    public void insert(int id, int sid, int semesterNo, String subject1, String subject2, String subject3, String subject4) {
+//        String sql = "insert into course (Student_ID,Semester,Subject_1,Subject_2,Subject_3,Subject_4) values(?,?,?,?,?,?)";
+//        try {
+//            ps = Con.prepareStatement(sql);
+////            ps.setInt(1, id);
+//            ps.setInt(1, sid);
+//            ps.setInt(2, semesterNo);
+//            ps.setString(3, subject1);
+//            ps.setString(4, subject2);
+//            ps.setString(5, subject3);
+//            ps.setString(6, subject4);
+//
+//            System.out.println(ps);
+//
+//            if (ps.executeUpdate() > 0) {
+//                JOptionPane.showMessageDialog(null, "course added Successfuly");
+//            }
+//        } catch (SQLException ex) {
+//            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+    
+     public void addCourse(CourseModel course)  {
         String sql = "insert into course (Student_ID,Semester,Subject_1,Subject_2,Subject_3,Subject_4) values(?,?,?,?,?,?)";
         try {
             ps = Con.prepareStatement(sql);
 //            ps.setInt(1, id);
-            ps.setInt(1, sid);
-            ps.setInt(2, semesterNo);
-            ps.setString(3, subject1);
-            ps.setString(4, subject2);
-            ps.setString(5, subject3);
-            ps.setString(6, subject4);
-            
+
+
+            ps.setInt(1, course.getSid());
+            ps.setInt(2, course.getSemesterNo());
+            ps.setString(3, course.getSubject1());
+            ps.setString(4, course.getSubject2());
+            ps.setString(5, course.getSubject3());
+            ps.setString(6, course.getSubject4());
+
             System.out.println(ps);
 
             if (ps.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "course added Successfuly");
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Course.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void getCoursetValue(JTable table, String searchValue) {
         String sql = "select * from course where concat(Course_ID, Student_ID, Semester) like ? order by Course_ID desc";
-
 
         try {
             ps = Con.prepareStatement(sql);
@@ -118,12 +144,12 @@ public int countSemester(int id) {
                 row[3] = rs.getString(4);
                 row[4] = rs.getString(5);
                 row[5] = rs.getString(6);
-                  row[6] = rs.getString(7);
+                row[6] = rs.getString(7);
                 model.addRow(row);
 
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Course.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CourseDao.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
